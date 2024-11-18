@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Extended Diagonal Line -->
+  <line x1="20" y1="20" x2="100" y2="100" stroke="grey" stroke-width="8" stroke-linecap="round" />
+  <!-- Vertical Line -->
+  <line x1="100" y1="40" x2="100" y2="100" stroke="grey" stroke-width="8" stroke-linecap="round" />
+  <!-- Horizontal Line -->
+  <line x1="40" y1="100" x2="100" y2="100" stroke="grey" stroke-width="8" stroke-linecap="round" />
+</svg>
