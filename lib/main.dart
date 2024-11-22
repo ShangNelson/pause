@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'home_button.dart' as home_button;
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Menco',
         useMaterial3: true,
       ),
-      home: const HelpPage(),
+      home: const SplashScreenState(),
       routes: {
         '/home': (context) => HomePage(title: "Pause", screenHeight: screenHeight, screenWidth: screenWidth,),
       },
@@ -637,10 +639,10 @@ class HelpPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/tutorial.svg",
                     svgPath: snapshot.data!,
                     text: "Tutorial", 
-                    svgWidth: 1, 
-                    svgHeight: 0.33, 
+                    svgWidth: 388/360, 
+                    svgHeight: 298/800, 
                     alignment: Alignment.topLeft,
-                    svgPosition: const Offset(0, 0), 
+                    svgPosition: const Offset(-21/360, -16/800), 
                     textPosition: const Offset(0.5, .1),
                     textSize: 36,
                     textAnchor: const Offset(-.5, 0),
@@ -673,10 +675,10 @@ class HelpPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/whatIsPause.svg",
                     svgPath: snapshot.data!,
                     text: "What is Pause?", 
-                    svgWidth: 1, 
-                    svgHeight: .44,
+                    svgWidth: 393/360, 
+                    svgHeight: 362/800,
                     alignment: Alignment.topLeft,
-                    svgPosition: const Offset(0, 0.29), 
+                    svgPosition: const Offset(-26/360, 200/800), 
                     textSize: 36,
                     textPosition: const Offset(0.5, 0.38),
                     textAnchor: const Offset(-.5, 0),
@@ -709,10 +711,10 @@ class HelpPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/resources.svg",
                     svgPath: snapshot.data!,
                     text: "Resources", 
-                    svgWidth: 1, 
-                    svgHeight: 0.4,
+                    svgWidth: 438.62/360, 
+                    svgHeight: 252.25/800,
                     alignment: Alignment.topLeft,
-                    svgPosition: const Offset(0, 0.5), 
+                    svgPosition: const Offset(-41/360, 419/800), 
                     textSize: 36,
                     textPosition: const Offset(0.5, 0.65),
                     textAnchor: const Offset(-.5, 0),
@@ -1347,6 +1349,8 @@ class BreatheAnimationState extends State<BreatheAnimation>
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -1358,20 +1362,26 @@ class BreatheAnimationState extends State<BreatheAnimation>
             gapSize: 10,
             circleGapSize: 10,
           ),
-          child: Center(
-            child: FractionalTranslation(
-              translation: const Offset(0, -1),
-              child: Text(
-                displayText,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  height: 0.9,
+          child: Stack(
+            children: [
+              Positioned(
+                top: screenHeight/3,
+                left: screenWidth/2,
+                child: FractionalTranslation(
+                  translation: const Offset(-0.5, -0.40),
+                  child: Text(
+                    displayText,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 64,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      height: 0.9,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         );
       },
@@ -1397,7 +1407,7 @@ class CircleProgressPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     double strokeWidth = 11.12; // Stroke width for the progress indicator
-    double radius = (size.width / 2) - strokeWidth;
+    double radius = min((size.height / 4), size.width/2-25) - strokeWidth;
     Offset center = Offset(size.width / 2, size.height / 3);
 
     double startAngle = -90.0 * 3.1415926535897932 / 180.0; // Top of the circle

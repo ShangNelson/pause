@@ -89,8 +89,8 @@ class ExpandingSvgButtonState extends State<ExpandingSvgButton> with SingleTicke
                     offset: Offset(0, _yValueAnimation.value),
                     child: SvgPicture.asset(
                       widget.svgPath,
-                      width: (width/2+height)/15, // Original width; scaling takes effect
-                      height: (width/2+height)/15, // Original height; scaling takes effect
+                      width: height/13, // Original width; scaling takes effect
+                      height: height/13, // Original height; scaling takes effect
                     ),
                   ),
                 ),
