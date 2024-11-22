@@ -69,9 +69,11 @@ class ExpandingSvgButtonState extends State<ExpandingSvgButton> with SingleTicke
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     return Positioned(
-      bottom: 25,
-      left: MediaQuery.of(context).size.width / 2,
+      bottom: height/100,
+      left:  width / 2,
       child: FractionalTranslation(
         translation: const Offset(-0.5, -0.5),
         child: GestureDetector(
@@ -87,8 +89,8 @@ class ExpandingSvgButtonState extends State<ExpandingSvgButton> with SingleTicke
                     offset: Offset(0, _yValueAnimation.value),
                     child: SvgPicture.asset(
                       widget.svgPath,
-                      width: 65, // Original width; scaling takes effect
-                      height: 65, // Original height; scaling takes effect
+                      width: (width/2+height)/15, // Original width; scaling takes effect
+                      height: (width/2+height)/15, // Original height; scaling takes effect
                     ),
                   ),
                 ),

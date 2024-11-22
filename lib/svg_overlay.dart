@@ -20,6 +20,7 @@ class SvgOverlay extends StatelessWidget {
   final double? passedScreenHeight;
   final double? passedScreenWidth;
   final VoidCallback? onTap;
+  final Alignment alignment;
 
   const SvgOverlay({
     super.key,
@@ -39,31 +40,50 @@ class SvgOverlay extends StatelessWidget {
     this.imageAnchor = const Offset(0,0),
     this.passedScreenHeight = 0,
     this.passedScreenWidth = 0,
+    this.alignment= Alignment.topLeft,
   });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final screenWidth = (passedScreenWidth != 0) ? passedScreenWidth : constraints.maxWidth;
-        final screenHeight = (passedScreenHeight != 0) ? passedScreenHeight : constraints.maxHeight;
-        developer.log("Screen Width: $screenWidth", name:"DEBUGGER");
+        final screenWidth = constraints.maxWidth;
+        final screenHeight = constraints.maxHeight;
+
+
+        // Compute the position based on the screen size and position factor
+        final left = svgPosition.dx * screenWidth;
+        final top = svgPosition.dy * screenHeight;
+
+        Rect pathBounds = parseSvgPathData(svgPath[0].path).getBounds();
+
+        developer.log("SVG: $svgImage", name:"DEBUGGER");
+        developer.log("Computed SVG Scale - Width: ${svgWidth * screenWidth / pathBounds.width}, Height: ${svgHeight * screenHeight / pathBounds.height}", name: "DEBUGGER");
+        developer.log("Screen Dimensions - Width: $screenWidth, Height: $screenHeight", name: "DEBUGGER");
+        developer.log("Path Bounds - Width: ${pathBounds.width}, Height: ${pathBounds.height}", name: "DEBUGGER");
+        developer.log("");
+
         return Stack(
           children: [
             // Positioned SVG with Debug Border
             Positioned(
-              left: screenWidth! * svgPosition.dx,
-              top: screenHeight! * svgPosition.dy,
+              left: left,
+              top: top,
               child: FractionalTranslation(
                 translation: svgAnchor,
-                child: Transform.scale(
-                  scaleX: svgWidth, // Custom scale factor for width
-                  scaleY: svgHeight, // Custom scale factor for height
+                child: Transform(
+                  alignment: alignment,
+                  transform: Matrix4.identity()
+                    ..scale(svgWidth * 1.065 * screenWidth/pathBounds.width, 
+                            svgHeight * 1.166 * screenHeight/pathBounds.height),
                   child: GestureDetector(
                     onTap: onTap,
                     child: ClipPath(
-                      clipper: Clipper(svgPath: svgPath[0].path),  
-                      child: SvgPicture.asset(svgImage),
+                      clipper: Clipper(svgPath: svgPath[0].path),
+                      child: SvgPicture.asset(
+                        svgImage,
+                        fit: BoxFit.fill,
+                        ),
                     ),
                   ),
                 ),

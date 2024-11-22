@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Menco',
         useMaterial3: true,
       ),
-      home: const SplashScreenState(),
+      home: const HelpPage(),
       routes: {
         '/home': (context) => HomePage(title: "Pause", screenHeight: screenHeight, screenWidth: screenWidth,),
       },
@@ -123,14 +123,38 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final screenHeight = MediaQuery.sizeOf(context).height;
-    // ignore: prefer_const_constructors
     return Scaffold(
       backgroundColor: const Color(0xFFBDD4DA),
       body: Center(
         child: Stack(
           children: [
+
+            FutureBuilder(
+              future: loadSvgImage(svgImage: 'lib/assets/clickableShapes/rectangle.svg',), 
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(); // Show loading indicator
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}'); // Show error if there's an issue
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Text('No SVG data found'); // Handle case where no data is returned
+                } else {
+                  return svg_overlay.SvgOverlay(
+                    svgImage: 'lib/assets/clickableShapes/rectangle.svg',
+                    svgPath: snapshot.data!,
+                    text: "Help", 
+                    svgWidth: 1, 
+                    svgHeight: 1/8,
+                    alignment: Alignment.bottomLeft,
+                    svgPosition: const Offset(0, 1), 
+                    svgAnchor: const Offset(0, -1),
+                    textPosition: const Offset(0.5, 0.9),
+                    textAnchor: const Offset(-0.5, -0.5),
+                    onTap: () => _navigateToHelpPage(context),
+                  );
+                }
+              }
+            ),
 
             //Body Scan Section
             FutureBuilder<List<svg_overlay.SvgPath>>(
@@ -143,14 +167,15 @@ class HomePage extends StatelessWidget {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Text('No SVG data found'); // Handle case where no data is returned
                 } else {
-                  return svg_overlay.SvgOverlay(
+                  return svg_overlay.SvgOverlay(  
                     svgImage: 'lib/assets/clickableShapes/bodyScan.svg',
                     svgPath: snapshot.data!,
-                    svgWidth: screenWidth/360,
-                    svgHeight: screenHeight/800,
+                    svgWidth: 1,
+                    svgHeight: 160/800,
                     svgPosition: const Offset(0, 0),
-                    textPosition: Offset(.5*screenWidth/360, .08*784/screenHeight),
-                    imagePosition: Offset(0.2*screenWidth/360, 0.1*784/screenHeight),
+                    svgAnchor: const Offset(0, 0),
+                    textPosition: const Offset(.5, .08),
+                    imagePosition: const Offset(0.2, 0.1),
                     textAnchor: const Offset(-0.5, 0),
                     imageAnchor: const Offset(-0.5, -0.5),
                     text: "Body Scan",
@@ -174,11 +199,11 @@ class HomePage extends StatelessWidget {
                   return svg_overlay.SvgOverlay(
                     svgImage: 'lib/assets/clickableShapes/5Senses.svg',
                     svgPath: snapshot.data!,
-                    svgWidth: screenWidth/360,
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(0, 0.14*784/screenHeight),
-                    textPosition: Offset(0.4*screenWidth/360, 0.25*784/screenHeight),
-                    imagePosition: Offset(0.14*screenWidth/360, 0.275*784/screenHeight),
+                    svgWidth: 284/360,
+                    svgHeight: 169/800,
+                    svgPosition: const Offset(0, 0.127),
+                    textPosition: const Offset(0.4, 0.25),
+                    imagePosition: const Offset(0.14, 0.275),
                     textAnchor: const Offset(-0.5, 0),
                     imageAnchor: const Offset(-0.5, -0.5),
                     text: "5 Senses",
@@ -203,12 +228,13 @@ class HomePage extends StatelessWidget {
                   return svg_overlay.SvgOverlay(
                     svgImage: 'lib/assets/clickableShapes/breathe.svg',
                     svgPath: snapshot.data!,
-                    svgWidth: screenWidth/360,
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(1, 0.097*784/screenHeight),
-                    textPosition: Offset(0.82*screenWidth/360, 0.37*784/screenHeight),
-                    imagePosition: Offset(0.82*screenWidth/360, 0.32*784/screenHeight),
+                    svgWidth: 187/360,
+                    svgHeight: 325/800,
+                    svgPosition: const Offset(1, 0.088),
+                    textPosition: const Offset(0.82, 0.37),
+                    imagePosition: const Offset(0.82, 0.32),
                     textAnchor: const Offset(-0.5, 0),
+                    alignment: Alignment.topRight,
                     imageAnchor: const Offset(-0.5, -0.5),
                     svgAnchor: const Offset(-1, 0),
                     text: "Breathe",
@@ -232,11 +258,11 @@ class HomePage extends StatelessWidget {
                   return svg_overlay.SvgOverlay(
                     svgImage: 'lib/assets/clickableShapes/thoughtsOnTrial.svg',
                     svgPath: snapshot.data!,
-                    svgWidth: screenWidth/360,
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(0, 0.327*784/screenHeight),
-                    textPosition: Offset(0.35*screenWidth/360, 0.47*784/screenHeight),
-                    imagePosition: Offset(0.24*screenWidth/360, 0.42*784/screenHeight),
+                    svgWidth: 296/360,
+                    svgHeight: 186.57/800,
+                    svgPosition: const Offset(0, .329),
+                    textPosition: const Offset(0.35, 0.47),
+                    imagePosition: const Offset(0.24, 0.42),
                     textAnchor: const Offset(-0.5, 0),
                     imageAnchor: const Offset(-0.5, -0.5),
                     text: "Thoughts on Trial",
@@ -260,11 +286,11 @@ class HomePage extends StatelessWidget {
                   return svg_overlay.SvgOverlay(
                     svgImage: 'lib/assets/clickableShapes/visualization.svg',
                     svgPath: snapshot.data!,
-                    svgWidth: screenWidth/360,
-                    svgHeight: screenHeight/800,
-                    svgPosition: const Offset(0, 0.528),
-                    textPosition: Offset(0.25*screenWidth/360, 0.60*784/screenHeight),
-                    imagePosition: Offset(0.15*screenWidth/360, 0.70*784/screenHeight),
+                    svgWidth: 235.12/360,
+                    svgHeight: 207.7/800,
+                    svgPosition: const Offset(0, 0.548),
+                    textPosition: const Offset(0.25, 0.60),
+                    imagePosition: const Offset(0.15, 0.70),
                     textAnchor: const Offset(-0.5, 0),
                     imageAnchor: const Offset(-0.5, -0.5),
                     text: "Visualization",
@@ -288,11 +314,12 @@ class HomePage extends StatelessWidget {
                   return svg_overlay.SvgOverlay(
                     svgImage: 'lib/assets/clickableShapes/progressiveMuscleRelaxation.svg',
                     svgPath: snapshot.data!,
-                    svgWidth: screenWidth/360,
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(0.995*screenWidth/360, 0.498*784/screenHeight),
-                    textPosition: Offset(0.74*screenWidth/360, 0.67*784/screenHeight),
-                    imagePosition: Offset(0.74*screenWidth/360, 0.62*784/screenHeight),
+                    svgWidth: 305.7/360,
+                    svgHeight: 290.09/800,
+                    alignment: Alignment.topRight,
+                    svgPosition: const Offset(1, 0.515),
+                    textPosition: const Offset(0.74, 0.67),
+                    imagePosition: const Offset(0.74, 0.62),
                     textAnchor: const Offset(-0.5, 0),
                     imageAnchor: const Offset(-0.5, -0.5),
                     svgAnchor: const Offset(-1, 0),
@@ -304,31 +331,7 @@ class HomePage extends StatelessWidget {
               }
             ),
 
-            FutureBuilder(
-              future: loadSvgImage(svgImage: 'lib/assets/clickableShapes/rectangle.svg',), 
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); // Show loading indicator
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}'); // Show error if there's an issue
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Text('No SVG data found'); // Handle case where no data is returned
-                } else {
-                  return svg_overlay.SvgOverlay(
-                    svgImage: 'lib/assets/clickableShapes/rectangle.svg',
-                    svgPath: snapshot.data!,
-                    text: "Help", 
-                    svgWidth: screenWidth/360, 
-                    svgHeight: screenHeight/800, 
-                    svgPosition: Offset(0, 1.003*screenHeight/800), 
-                    textPosition: Offset(0.5*screenWidth/360, 0.9*screenHeight/800),
-                    textAnchor: const Offset(-0.5, -0.5),
-                    svgAnchor: const Offset(0, -1),
-                    onTap: () => _navigateToHelpPage(context),
-                  );
-                }
-              }
-            ),
+            
           ],
         ),
       ),
@@ -615,8 +618,6 @@ class HelpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final screenHeight = MediaQuery.sizeOf(context).height;
     return Scaffold(
       backgroundColor: const Color(0xFF9CC4A9),
       body: Center(
@@ -636,14 +637,13 @@ class HelpPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/tutorial.svg",
                     svgPath: snapshot.data!,
                     text: "Tutorial", 
-                    svgWidth: screenWidth/360, 
-                    svgHeight: screenHeight/800, 
+                    svgWidth: 1, 
+                    svgHeight: 0.33, 
+                    alignment: Alignment.topLeft,
                     svgPosition: const Offset(0, 0), 
                     textPosition: const Offset(0.5, .1),
                     textSize: 36,
                     textAnchor: const Offset(-.5, 0),
-                    passedScreenHeight: screenHeight,
-                    passedScreenWidth: screenWidth,
                     onTap: () => Navigator.push(
                                   context,
                                   PageRouteBuilder(
@@ -673,14 +673,13 @@ class HelpPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/whatIsPause.svg",
                     svgPath: snapshot.data!,
                     text: "What is Pause?", 
-                    svgWidth: screenWidth/360, 
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(0, 0.25*screenHeight/800), 
+                    svgWidth: 1, 
+                    svgHeight: .44,
+                    alignment: Alignment.topLeft,
+                    svgPosition: const Offset(0, 0.29), 
                     textSize: 36,
                     textPosition: const Offset(0.5, 0.38),
                     textAnchor: const Offset(-.5, 0),
-                    passedScreenHeight: screenHeight,
-                    passedScreenWidth: screenWidth,
                     onTap: () => Navigator.push(
                                   context,
                                   PageRouteBuilder(
@@ -710,14 +709,13 @@ class HelpPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/resources.svg",
                     svgPath: snapshot.data!,
                     text: "Resources", 
-                    svgWidth: screenWidth/360, 
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(0, 0.5*screenHeight/800), 
+                    svgWidth: 1, 
+                    svgHeight: 0.4,
+                    alignment: Alignment.topLeft,
+                    svgPosition: const Offset(0, 0.5), 
                     textSize: 36,
                     textPosition: const Offset(0.5, 0.65),
                     textAnchor: const Offset(-.5, 0),
-                    passedScreenHeight: screenHeight,
-                    passedScreenWidth: screenWidth,
                     onTap: () => Navigator.push(
                                   context,
                                   PageRouteBuilder(
@@ -862,10 +860,11 @@ class BodyScanPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/fullBody.svg",
                     svgPath: snapshot.data!, 
                     text: "Full Body", 
-                    svgWidth: screenWidth/360, 
-                    svgHeight: screenHeight/800, 
+                    svgWidth: 377.1/360,
+                    alignment: Alignment.topLeft,
+                    svgHeight: 0.3, 
                     svgPosition: const Offset(0,0), 
-                    textPosition: Offset(0.5*screenWidth/360, 0.1*screenHeight/800),
+                    textPosition: const Offset(0.5, 0.1),
                     textAnchor: const Offset(-0.5, 0),
                     passedScreenHeight: screenHeight,
                     passedScreenWidth: screenWidth,
@@ -903,10 +902,11 @@ class BodyScanPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/lowerBody.svg",
                     svgPath: snapshot.data!, 
                     text: "LowerBody", 
-                    svgWidth: screenWidth/360, 
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(0, 0.2*screenHeight/800), 
-                    textPosition: Offset(0.5*screenWidth/360, 0.3*screenHeight/800),
+                    svgWidth: 390/360,
+                    svgHeight: 0.3,
+                    alignment: Alignment.topLeft,
+                    svgPosition: const Offset(0, 0.2), 
+                    textPosition: const Offset(0.5, 0.3),
                     textAnchor: const Offset(-0.5, 0),
                     passedScreenHeight: screenHeight,
                     passedScreenWidth: screenWidth,
@@ -944,10 +944,11 @@ class BodyScanPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/torso.svg",
                     svgPath: snapshot.data!, 
                     text: "Torso", 
-                    svgWidth: screenWidth/360, 
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(0, 0.4*screenHeight/800), 
-                    textPosition: Offset(0.5*screenWidth/360, 0.51*screenHeight/800),
+                    svgWidth: 382.49/360,
+                    alignment: Alignment.topLeft,
+                    svgHeight: .3,
+                    svgPosition: const Offset(0, 0.4), 
+                    textPosition: const Offset(0.5, 0.51),
                     textAnchor: const Offset(-0.5, 0),
                     passedScreenHeight: screenHeight,
                     passedScreenWidth: screenWidth,
@@ -986,10 +987,11 @@ class BodyScanPage extends StatelessWidget {
                     svgImage: "lib/assets/clickableShapes/upperBody.svg",
                     svgPath: snapshot.data!, 
                     text: "Upper Body", 
-                    svgWidth: screenWidth/360, 
-                    svgHeight: screenHeight/800,
-                    svgPosition: Offset(0, 0.6*screenHeight/800), 
-                    textPosition: Offset(0.5*screenWidth/360, 0.68*screenHeight/800),
+                    svgWidth: 381.65/360,
+                    alignment: Alignment.topLeft,
+                    svgHeight: 0.3,
+                    svgPosition: const Offset(0, 0.6), 
+                    textPosition: const Offset(0.5, 0.68),
                     textAnchor: const Offset(-0.5, 0),
                     passedScreenHeight: screenHeight,
                     passedScreenWidth: screenWidth,
@@ -1231,7 +1233,7 @@ class BreathePage extends StatefulWidget {
 }
 
 class BreathePageState extends State<BreathePage> {
-  Color backgroundColor = const Color(0xFFBDD4DA); // Initial background color
+  Color backgroundColor = const Color(0xFF76A487); // Initial background color
 
   @override
   Widget build(BuildContext context) {
@@ -1298,7 +1300,7 @@ class BreatheAnimationState extends State<BreatheAnimation>
   // State variables for alternating between "Breathe In" and "Breathe Out"
   bool isBreathingIn = true; // Track which state is active
   Color circleColor = const Color(0xFFC69167);
-  Color indicatorColor = const Color(0xFF65558F);
+  Color indicatorColor = const Color(0xFFE5AD5A);
   String displayText = "Breathe\nin";
 
   @override
@@ -1314,13 +1316,13 @@ class BreatheAnimationState extends State<BreatheAnimation>
             isBreathingIn = !isBreathingIn; // Toggle state
             if (isBreathingIn) {
               circleColor = const Color(0xFFC69167);
-              indicatorColor = const Color(0xFF65558F);
+              indicatorColor = const Color(0xFFE5AD5A);
               displayText = "Breathe\nin";
 
-              widget.onAnimationComplete(const Color(0xFFBDD4DA));
+              widget.onAnimationComplete(const Color(0xFF76A487));
             } else {
               circleColor = const Color(0xFF9CC4A9); // Change circle color
-              indicatorColor = const Color(0xFF65558F); // Change indicator color
+              indicatorColor = const Color(0xFFE5AD5A); // Change indicator color
               displayText = "Breathe\nout"; // Update text
               
               widget.onAnimationComplete(const Color(0xFFC69167));
@@ -1394,7 +1396,7 @@ class CircleProgressPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double strokeWidth = 8.0; // Stroke width for the progress indicator
+    double strokeWidth = 11.12; // Stroke width for the progress indicator
     double radius = (size.width / 2) - strokeWidth;
     Offset center = Offset(size.width / 2, size.height / 3);
 
@@ -1413,7 +1415,7 @@ class CircleProgressPainter extends CustomPainter {
 
     // Paint for the unfilled portion of the progress indicator
     Paint unfilledPaint = Paint()
-      ..color = Colors.white
+      ..color = const Color(0xFF9CC4A9)
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
