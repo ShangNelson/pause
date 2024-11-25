@@ -57,12 +57,6 @@ class SvgOverlay extends StatelessWidget {
 
         Rect pathBounds = parseSvgPathData(svgPath[0].path).getBounds();
 
-        developer.log("SVG: $svgImage", name:"DEBUGGER");
-        developer.log("Computed SVG Scale - Width: ${svgWidth * screenWidth / pathBounds.width}, Height: ${svgHeight * screenHeight / pathBounds.height}", name: "DEBUGGER");
-        developer.log("Screen Dimensions - Width: $screenWidth, Height: $screenHeight", name: "DEBUGGER");
-        developer.log("Path Bounds - Width: ${pathBounds.width}, Height: ${pathBounds.height}", name: "DEBUGGER");
-        developer.log("");
-
         return Stack(
           children: [
             // Positioned SVG with Debug Border

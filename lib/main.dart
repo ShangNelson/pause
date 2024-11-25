@@ -10,6 +10,7 @@ import 'thoughts_on_trial.dart' as thoughts;
 import 'dart:async';
 import 'package:xml/xml.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,9 +18,10 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key,});
-
+  
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     return MaterialApp(
@@ -150,7 +152,7 @@ class HomePage extends StatelessWidget {
                     alignment: Alignment.bottomLeft,
                     svgPosition: const Offset(0, 1), 
                     svgAnchor: const Offset(0, -1),
-                    textPosition: const Offset(0.5, 0.9),
+                    textPosition: const Offset(0.5, 0.93),
                     textAnchor: const Offset(-0.5, -0.5),
                     onTap: () => _navigateToHelpPage(context),
                   );
@@ -232,7 +234,7 @@ class HomePage extends StatelessWidget {
                     svgPath: snapshot.data!,
                     svgWidth: 187/360,
                     svgHeight: 325/800,
-                    svgPosition: const Offset(1, 0.088),
+                    svgPosition: const Offset(1.003, 0.088),
                     textPosition: const Offset(0.82, 0.37),
                     imagePosition: const Offset(0.82, 0.32),
                     textAnchor: const Offset(-0.5, 0),
@@ -263,8 +265,8 @@ class HomePage extends StatelessWidget {
                     svgWidth: 296/360,
                     svgHeight: 186.57/800,
                     svgPosition: const Offset(0, .329),
-                    textPosition: const Offset(0.35, 0.47),
-                    imagePosition: const Offset(0.24, 0.42),
+                    textPosition: const Offset(0.35, 0.49),
+                    imagePosition: const Offset(0.24, 0.44),
                     textAnchor: const Offset(-0.5, 0),
                     imageAnchor: const Offset(-0.5, -0.5),
                     text: "Thoughts on Trial",
@@ -291,8 +293,8 @@ class HomePage extends StatelessWidget {
                     svgWidth: 235.12/360,
                     svgHeight: 207.7/800,
                     svgPosition: const Offset(0, 0.548),
-                    textPosition: const Offset(0.25, 0.60),
-                    imagePosition: const Offset(0.15, 0.70),
+                    textPosition: const Offset(0.24, 0.63),
+                    imagePosition: const Offset(0.19, 0.72),
                     textAnchor: const Offset(-0.5, 0),
                     imageAnchor: const Offset(-0.5, -0.5),
                     text: "Visualization",
@@ -320,8 +322,8 @@ class HomePage extends StatelessWidget {
                     svgHeight: 290.09/800,
                     alignment: Alignment.topRight,
                     svgPosition: const Offset(1, 0.515),
-                    textPosition: const Offset(0.74, 0.67),
-                    imagePosition: const Offset(0.74, 0.62),
+                    textPosition: const Offset(0.74, 0.69),
+                    imagePosition: const Offset(0.74, 0.64),
                     textAnchor: const Offset(-0.5, 0),
                     imageAnchor: const Offset(-0.5, -0.5),
                     svgAnchor: const Offset(-1, 0),
@@ -344,7 +346,7 @@ class HomePage extends StatelessWidget {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => CentralTextPage(pageName: pageName, text: centralText, backgroundColor: backgroundColor, onTap: callBack, backOnLeft: true,),
+        pageBuilder: (_, __, ___) => CentralTextStateStarted(pageName: pageName, text: centralText, backgroundColor: backgroundColor, onTap: callBack, backOnLeft: true,),
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -413,7 +415,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class CentralTextPage extends StatelessWidget {
+class CentralTextStateStarted extends StatefulWidget {
   final String pageName;
   final String text;
   final Color backgroundColor;
@@ -423,7 +425,7 @@ class CentralTextPage extends StatelessWidget {
   final VoidCallback? onTap;
   final bool? backOnLeft;
 
-  const CentralTextPage({
+  const CentralTextStateStarted({
     super.key, 
     required this.text, 
     required this.pageName, 
@@ -436,27 +438,61 @@ class CentralTextPage extends StatelessWidget {
     });
 
   @override
+  CentralTextPage createState() => CentralTextPage();
+}
+
+class CentralTextPage extends State<CentralTextStateStarted>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 45), // Full cycle duration
+      vsync: this,
+    )..repeat(); // Loop forever
+
+    _animation = Tween<double>(begin: -1.0, end: 1.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  } 
+
+
+  @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        title: Text(pageName),
-        backgroundColor: lighten(backgroundColor, 0.05),
-      ),
+      backgroundColor: widget.backgroundColor,
       body: Center(
         child: Stack(
           children: [
+
+            // Left side shapes
+              ..._buildMovingShapes(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                color: widget.backgroundColor,
+              ),
+
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(45),
                 child: Center(
                   child: Text(
-                    text,
+                    widget.text,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: (textSize == null) ? 40 : textSize,
-                      fontWeight: (notBold!) ? FontWeight.normal : FontWeight.w700,
-                      height: (lineHeight == null) ? 1.2 : lineHeight,
+                      fontSize: (widget.textSize == null) ? 40 : widget.textSize,
+                      fontWeight: (widget.notBold!) ? FontWeight.normal : FontWeight.w700,
+                      height: (widget.lineHeight == null) ? 1.2 : widget.lineHeight,
                     ),
                   ),
                 ),
@@ -466,7 +502,7 @@ class CentralTextPage extends StatelessWidget {
             Positioned.fill(
               child: GestureDetector(
                 onTap: () => {
-                  if (backOnLeft!) {
+                  if (widget.backOnLeft!) {
                     _navigateToHomePage(context)
                   }
                 }
@@ -479,7 +515,7 @@ class CentralTextPage extends StatelessWidget {
               bottom: 0,
               width: MediaQuery.of(context).size.width / 2,
               child: GestureDetector(
-                onTap: onTap,
+                onTap: widget.onTap,
               ),
             ),
             const home_button.ExpandingSvgButton(),
@@ -488,15 +524,89 @@ class CentralTextPage extends StatelessWidget {
       ),
     );
   }
+
+  List<Widget> _buildMovingShapes({
+    required double screenWidth,
+    required double screenHeight,
+    required Color color,
+  }) {
+    return [
+      AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: _animation.value,
+                color:color,
+              ),
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: (_animation.value+2/4)%1.0,
+                color:color,
+              ),
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: (_animation.value+4/4)%1.0,
+                color:color,
+              ),
+            ],
+          );
+        },
+      ),
+    ];
+  }
+
+  Widget _buildShape({
+    required double screenWidth,
+    required double screenHeight,
+    required double position,
+    required Color color,
+  }) {
+    double adjustedPosition = 2*screenHeight * position;
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          right: null,
+          bottom: adjustedPosition-screenHeight,
+          child: Opacity(
+            opacity: 0.95, 
+            child: SvgPicture.asset(
+              "lib/assets/clickableShapes/leftLung.svg",
+              color: darken(color),
+              ),
+          ),
+        ),
+        Positioned(
+          left:  null,
+          right:  0,
+          top: adjustedPosition-screenHeight,
+          child: Opacity(
+            opacity: 0.95, 
+            child: SvgPicture.asset(
+              "lib/assets/clickableShapes/rightLung.svg",
+              color: darken(color),
+              ),
+          ),
+        )
+      ],
+    );
+  }
 }
 
-class BodyScanSectionPage extends StatelessWidget {
+class BodyScanSectionPageState extends StatefulWidget {
+  
   final String text;
   final int breatheIndex;
   final String breatheSection;
   final Color backgroundColor;
 
-  const BodyScanSectionPage({
+  const BodyScanSectionPageState({
     super.key, 
     required this.text,
     required this.breatheIndex,
@@ -505,22 +615,53 @@ class BodyScanSectionPage extends StatelessWidget {
     });
 
   @override
+  BodyScanSectionPage createState() => BodyScanSectionPage();
+}
+
+class BodyScanSectionPage extends State<BodyScanSectionPageState>
+with SingleTickerProviderStateMixin{
+
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 45), // Full cycle duration
+      vsync: this,
+    )..repeat(); // Loop forever
+
+    _animation = Tween<double>(begin: -1.0, end: 1.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = MediaQuery.sizeOf(context).height;
     return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        title: const Text("Body Scan"),
-        backgroundColor: lighten(backgroundColor, 0.05),
-      ),
+      backgroundColor: widget.backgroundColor,
       body: Center(
         child: Stack(
           children: [
+            
+            ..._buildMovingShapes(
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+              color: widget.backgroundColor,
+            ),
             Positioned.fill(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(15),
+                  padding: const EdgeInsets.all(45),
                   child: Text(
-                    text,
+                    widget.text,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 40,
@@ -534,11 +675,11 @@ class BodyScanSectionPage extends StatelessWidget {
             Positioned.fill(
               child: GestureDetector(
                 onTap: () {
-                  if (breatheIndex > 0) {
+                  if (widget.breatheIndex > 0) {
                     Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => BodyScanSectionPage(text: breathe_chain.breatheChains[breatheSection]![breatheIndex-1][0].toString(), breatheIndex: breatheIndex-1, breatheSection: breatheSection, backgroundColor: breathe_chain.breatheChains[breatheSection]![breatheIndex-1][1] as Color,),
+                        pageBuilder: (_, __, ___) => BodyScanSectionPageState(text: breathe_chain.breatheChains[widget.breatheSection]![widget.breatheIndex-1][0].toString(), breatheIndex: widget.breatheIndex-1, breatheSection: widget.breatheSection, backgroundColor: breathe_chain.breatheChains[widget.breatheSection]![widget.breatheIndex-1][1] as Color,),
                         transitionsBuilder: (_, animation, __, child) {
                           return FadeTransition(opacity: animation, child: child);
                         },
@@ -565,11 +706,11 @@ class BodyScanSectionPage extends StatelessWidget {
               width: MediaQuery.of(context).size.width / 2,
               child: GestureDetector(
                 onTap: () {
-                  if (breatheIndex < breathe_chain.breatheChains[breatheSection]!.length-1) {
+                  if (widget.breatheIndex < breathe_chain.breatheChains[widget.breatheSection]!.length-1) {
                     Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => BodyScanSectionPage(text: breathe_chain.breatheChains[breatheSection]![breatheIndex+1][0].toString(), breatheIndex: breatheIndex+1, breatheSection: breatheSection, backgroundColor: breathe_chain.breatheChains[breatheSection]![breatheIndex+1][1] as Color,),
+                        pageBuilder: (_, __, ___) => BodyScanSectionPageState(text: breathe_chain.breatheChains[widget.breatheSection]![widget.breatheIndex+1][0].toString(), breatheIndex: widget.breatheIndex+1, breatheSection: widget.breatheSection, backgroundColor: breathe_chain.breatheChains[widget.breatheSection]![widget.breatheIndex+1][1] as Color,),
                         transitionsBuilder: (_, animation, __, child) {
                           return FadeTransition(opacity: animation, child: child);
                         },
@@ -593,6 +734,73 @@ class BodyScanSectionPage extends StatelessWidget {
             ],
           ),
         ),
+    );
+  }
+
+  List<Widget> _buildMovingShapes({
+    required double screenWidth,
+    required double screenHeight,
+    required Color color,
+  }) {
+    return [
+      AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: (_animation.value)%1.0,
+                color: color,
+              ),
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: (_animation.value+0.5)%1.0,
+                color:color,
+              ),
+            ],
+          );
+        },
+      ),
+    ];
+  }
+
+  Widget _buildShape({
+    required double screenWidth,
+    required double screenHeight,
+    required double position,
+    required Color color
+  }) {
+    double adjustedPosition = 2*screenHeight * position;
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          right: null,
+          bottom: adjustedPosition-screenHeight,
+          child: Opacity(
+            opacity: 0.95, 
+            child: SvgPicture.asset(
+              "lib/assets/clickableShapes/leftLung.svg",
+              color: darken(color),
+            ),
+          ),
+        ),
+        Positioned(
+          left:  null,
+          right:  0,
+          top: adjustedPosition-screenHeight,
+          child: Opacity(
+            opacity: 0.95, 
+            child: SvgPicture.asset(
+              "lib/assets/clickableShapes/rightLung.svg",
+              color: darken(color),
+            ),
+          ),
+        )
+      ],
     );
   }
 }
@@ -685,7 +893,7 @@ class HelpPage extends StatelessWidget {
                     onTap: () => Navigator.push(
                                   context,
                                   PageRouteBuilder(
-                                    pageBuilder: (_, __, ___) => const CentralTextPage(pageName: "What is Pause?", text: "Pause is your companion in managing anxiety by offering guided techniques to help you regain focus and find inner peace. Whether you’re grounding yourself during a stressful moment or winding down after a long day, Pause is here to support you.", backgroundColor: Color(0xFF9CC4A9), textSize: 24, lineHeight: 2, notBold:true,),
+                                    pageBuilder: (_, __, ___) => const CentralTextStateStarted(pageName: "What is Pause?", text: "Pause is your companion in managing anxiety by offering guided techniques to help you regain focus and find inner peace. Whether you’re grounding yourself during a stressful moment or winding down after a long day, Pause is here to support you.", backgroundColor: Color(0xFF9CC4A9), textSize: 24, lineHeight: 2, notBold:true,),
                                     transitionsBuilder: (_, animation, __, child) {
                                       return FadeTransition(opacity: animation, child: child);
                                     },
@@ -745,12 +953,11 @@ class ResourcePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Resources"), backgroundColor: const Color(0xFFE5AD5A),),
       backgroundColor: const Color(0xFFE5AD5A), // Light orange background color
       body: Stack(
         children: [
           Positioned(
-            top: 10, // Control how far down the content starts
+            top: 100, // Control how far down the content starts
             left: 16, // Add horizontal padding
             right: 16, // Add horizontal padding
             child: Column(
@@ -786,7 +993,6 @@ class ResourcePage extends StatelessWidget {
                   title: '800-662-4357',
                   description: 'US SAMHSA National Helpline',
                 ),
-                const SizedBox(height: 16),
                 const Text(
                   'This app is not meant to replace seeking licensed professional help. '
                   'Reach out to a therapist or use the above resources.',
@@ -865,6 +1071,7 @@ class BodyScanPage extends StatelessWidget {
                     svgWidth: 377.1/360,
                     alignment: Alignment.topLeft,
                     svgHeight: 0.3, 
+                    textSize: 40,
                     svgPosition: const Offset(0,0), 
                     textPosition: const Offset(0.5, 0.1),
                     textAnchor: const Offset(-0.5, 0),
@@ -873,7 +1080,7 @@ class BodyScanPage extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => BodyScanSectionPage(
+                        pageBuilder: (_, __, ___) => BodyScanSectionPageState(
                           text: breathe_chain.breatheChains['fullBody']![0][0].toString(),
                           backgroundColor: breathe_chain.breatheChains['fullBody']![0][1] as Color, 
                           breatheIndex: 0, 
@@ -903,8 +1110,9 @@ class BodyScanPage extends StatelessWidget {
                   return svg_overlay.SvgOverlay(
                     svgImage: "lib/assets/clickableShapes/lowerBody.svg",
                     svgPath: snapshot.data!, 
-                    text: "LowerBody", 
+                    text: "Lower Body", 
                     svgWidth: 390/360,
+                    textSize: 40,
                     svgHeight: 0.3,
                     alignment: Alignment.topLeft,
                     svgPosition: const Offset(0, 0.2), 
@@ -915,7 +1123,7 @@ class BodyScanPage extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => BodyScanSectionPage(
+                        pageBuilder: (_, __, ___) => BodyScanSectionPageState(
                           text: breathe_chain.breatheChains['lowerBody']![0][0].toString(), 
                           backgroundColor: breathe_chain.breatheChains['lowerBody']![0][1] as Color, 
                           breatheIndex: 0, 
@@ -949,6 +1157,7 @@ class BodyScanPage extends StatelessWidget {
                     svgWidth: 382.49/360,
                     alignment: Alignment.topLeft,
                     svgHeight: .3,
+                    textSize: 40,
                     svgPosition: const Offset(0, 0.4), 
                     textPosition: const Offset(0.5, 0.51),
                     textAnchor: const Offset(-0.5, 0),
@@ -957,7 +1166,7 @@ class BodyScanPage extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => BodyScanSectionPage(
+                        pageBuilder: (_, __, ___) => BodyScanSectionPageState(
                           text: breathe_chain.breatheChains['torso']![0][0].toString(), 
                           backgroundColor: breathe_chain.breatheChains['torso']![0][1] as Color, 
                           breatheIndex: 1, 
@@ -992,6 +1201,7 @@ class BodyScanPage extends StatelessWidget {
                     svgWidth: 381.65/360,
                     alignment: Alignment.topLeft,
                     svgHeight: 0.3,
+                    textSize: 40,
                     svgPosition: const Offset(0, 0.6), 
                     textPosition: const Offset(0.5, 0.68),
                     textAnchor: const Offset(-0.5, 0),
@@ -1000,7 +1210,7 @@ class BodyScanPage extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => BodyScanSectionPage(
+                        pageBuilder: (_, __, ___) => BodyScanSectionPageState(
                           text: breathe_chain.breatheChains['upperBody']![0][0].toString(), 
                           backgroundColor: breathe_chain.breatheChains['upperBody']![0][1] as Color, 
                           breatheIndex: 1, 
@@ -1102,7 +1312,7 @@ class FiveSensesPage extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      top: 0.075*screenHeight,
+                      top: 0.1*screenHeight,
                       left: 0.5*screenWidth,
                       child: FractionalTranslation(
                         translation: const Offset(-0.5, 0),
@@ -1219,7 +1429,7 @@ class FiveSensesPage extends StatelessWidget {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => CentralTextPage(pageName: pageName, text: centralText, backgroundColor: backgroundColor, onTap: callBack,),
+        pageBuilder: (_, __, ___) => CentralTextStateStarted(pageName: pageName, text: centralText, backgroundColor: backgroundColor, onTap: callBack,),
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -1521,8 +1731,6 @@ class ThoughtsOnTrialState extends State<ThoughtsOnTrialPage>
             children: [
               // Left side shapes
               ..._buildMovingShapes(
-                offset: 0.0,
-                isLeft: true,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
               ),
@@ -1553,7 +1761,7 @@ class ThoughtsOnTrialState extends State<ThoughtsOnTrialPage>
                   Navigator.push(
                     context, 
                     PageRouteBuilder(
-                      pageBuilder: (_,__,___) => ThoughtsOnTrialChain(text: thoughts.thoughtChains[0][0].toString(), color: thoughts.thoughtChains[0][1] as Color, index: 0),
+                      pageBuilder: (_,__,___) => ThoughtsOnTrialChainPage(text: thoughts.thoughtChains[0][0].toString(), color: thoughts.thoughtChains[0][1] as Color, index: 0),
                       transitionsBuilder: (_,animation,__,child) {
                         return FadeTransition(opacity: animation, child: child,);
                       }
@@ -1569,11 +1777,68 @@ class ThoughtsOnTrialState extends State<ThoughtsOnTrialPage>
     );
   }
 
+  List<Widget> _buildMovingShapes({
+    required double screenWidth,
+    required double screenHeight,
+  }) {
+    return [
+      AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: (_animation.value)%1.0,
+              ),
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: (_animation.value+0.5)%1.0,
+              ),
+            ],
+          );
+        },
+      ),
+    ];
+  }
+
+  Widget _buildShape({
+    required double screenWidth,
+    required double screenHeight,
+    required double position,
+  }) {
+    double adjustedPosition = 2*screenHeight * position;
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          right: null,
+          bottom: adjustedPosition-screenHeight,
+          child: Opacity(
+            opacity: 0.5, 
+            child: SvgPicture.asset("lib/assets/clickableShapes/leftLung.svg"),
+          ),
+        ),
+        Positioned(
+          left:  null,
+          right:  0,
+          top: adjustedPosition-screenHeight,
+          child: Opacity(
+            opacity: 0.5, 
+            child: SvgPicture.asset("lib/assets/clickableShapes/rightLung.svg"),
+          ),
+        )
+      ],
+    );
+  }
+
   void _navigateToCentralPage(BuildContext context, String pageName, String centralText, Color backgroundColor, VoidCallback callBack) {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => CentralTextPage(pageName: pageName, text: centralText, backgroundColor: backgroundColor, onTap: callBack, backOnLeft: true,),
+        pageBuilder: (_, __, ___) => CentralTextStateStarted(pageName: pageName, text: centralText, backgroundColor: backgroundColor, onTap: callBack, backOnLeft: true,),
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -1592,66 +1857,14 @@ class ThoughtsOnTrialState extends State<ThoughtsOnTrialPage>
       )
     );
   }
-
-  List<Widget> _buildMovingShapes({
-    required double offset,
-    required bool isLeft,
-    required double screenWidth,
-    required double screenHeight,
-  }) {
-    return [
-      AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          double position1 = (_animation.value + offset) % 1.0;
-          double position2 = (_animation.value + offset-0.5) % 1.0;
-          return Stack(
-            children: [
-              _buildShape(
-                isLeft: isLeft,
-                screenWidth: screenWidth,
-                screenHeight: 2*screenHeight,
-                position: position1,
-              ),
-              _buildShape(
-                isLeft: !isLeft,
-                screenWidth: screenWidth,
-                screenHeight: 2*screenHeight,
-                position: position2,
-              ),
-            ],
-          );
-        },
-      ),
-    ];
-  }
-
-  Widget _buildShape({
-    required bool isLeft,
-    required double screenWidth,
-    required double screenHeight,
-    required double position,
-  }) {
-    double adjustedPosition = screenHeight * position;
-
-    return Positioned(
-      left: isLeft ? 0 : null,
-      right: isLeft ? null : 0,
-      bottom: adjustedPosition-screenHeight*0.45,
-      child: Opacity(
-        opacity: 0.5, 
-        child: isLeft ? SvgPicture.asset("lib/assets/clickableShapes/leftLung.svg") : SvgPicture.asset("lib/assets/clickableShapes/rightLung.svg"),
-      ),
-    );
-  }
 }
 
-class ThoughtsOnTrialChain extends StatelessWidget {
-  final String text;
+class ThoughtsOnTrialChainPage extends StatefulWidget {
+    final String text;
   final Color color;
   final int index;
 
-  const ThoughtsOnTrialChain({
+  const ThoughtsOnTrialChainPage({
     super.key, 
     required this.text, 
     required this.color, 
@@ -1659,18 +1872,51 @@ class ThoughtsOnTrialChain extends StatelessWidget {
   });
 
   @override
+  ThoughtsOnTrialChain createState() => ThoughtsOnTrialChain();
+}
+
+class ThoughtsOnTrialChain extends State<ThoughtsOnTrialChainPage>
+  with SingleTickerProviderStateMixin {
+    
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 30), // Full cycle duration
+      vsync: this,
+    )..repeat(); // Loop forever
+
+    _animation = Tween<double>(begin: -1.0, end: 1.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = MediaQuery.sizeOf(context).height;
     return Scaffold(
-      backgroundColor: color,
+      backgroundColor: widget.color,
       body: Center(
         child: Stack(
           children: [
+            ..._buildMovingShapes(
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+            ),
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(45),
                 child: Center(
                   child: Text(
-                    text,
+                    widget.text,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 40,
@@ -1684,11 +1930,11 @@ class ThoughtsOnTrialChain extends StatelessWidget {
             Positioned.fill(
               child: GestureDetector(
                 onTap: () => {
-                  if (index > 0) {
+                  if (widget.index > 0) {
                     Navigator.push(
                       context, 
                       PageRouteBuilder(
-                        pageBuilder: (_,__,___) => ThoughtsOnTrialChain(text: thoughts.thoughtChains[index-1][0].toString(), color: thoughts.thoughtChains[index-1][1] as Color, index: index-1),
+                        pageBuilder: (_,__,___) => ThoughtsOnTrialChainPage(text: thoughts.thoughtChains[widget.index-1][0].toString(), color: thoughts.thoughtChains[widget.index-1][1] as Color, index: widget.index-1),
                         transitionsBuilder: (_,animation,__,child) {
                           return FadeTransition(opacity: animation, child: child,);
                         }
@@ -1715,11 +1961,11 @@ class ThoughtsOnTrialChain extends StatelessWidget {
               width: MediaQuery.of(context).size.width / 2,
               child: GestureDetector(
                 onTap: () {
-                  if (index < thoughts.thoughtChains.length-1) {
+                  if (widget.index < thoughts.thoughtChains.length-1) {
                     Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => ThoughtsOnTrialChain(text: thoughts.thoughtChains[index+1][0].toString(), index: index+1, color: thoughts.thoughtChains[index][1] as Color,),
+                        pageBuilder: (_, __, ___) => ThoughtsOnTrialChainPage(text: thoughts.thoughtChains[widget.index+1][0].toString(), index: widget.index+1, color: thoughts.thoughtChains[widget.index][1] as Color,),
                         transitionsBuilder: (_, animation, __, child) {
                           return FadeTransition(opacity: animation, child: child);
                         },
@@ -1734,6 +1980,63 @@ class ThoughtsOnTrialChain extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  List<Widget> _buildMovingShapes({
+    required double screenWidth,
+    required double screenHeight,
+  }) {
+    return [
+      AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: (_animation.value)%1.0,
+              ),
+              _buildShape(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                position: (_animation.value+0.5)%1.0,
+              ),
+            ],
+          );
+        },
+      ),
+    ];
+  }
+
+  Widget _buildShape({
+    required double screenWidth,
+    required double screenHeight,
+    required double position,
+  }) {
+    double adjustedPosition = 2*screenHeight * position;
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          right: null,
+          bottom: adjustedPosition-screenHeight,
+          child: Opacity(
+            opacity: 0.5, 
+            child: SvgPicture.asset("lib/assets/clickableShapes/leftLung.svg"),
+          ),
+        ),
+        Positioned(
+          left:  null,
+          right:  0,
+          top: adjustedPosition-screenHeight,
+          child: Opacity(
+            opacity: 0.5, 
+            child: SvgPicture.asset("lib/assets/clickableShapes/rightLung.svg"),
+          ),
+        )
+      ],
     );
   }
 }
@@ -1789,7 +2092,7 @@ class TutorialPageOne extends StatelessWidget {
 
             const Positioned.fill(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(45),
                 child: Center(
                   child: IgnorePointer( // Ensures the Text does not block touch events
                     child: Text(
@@ -1845,7 +2148,7 @@ class TutorialPageTwo extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   PageRouteBuilder(
-                    pageBuilder: (_,__,___) => const TutorialPageOne(),
+                    pageBuilder: (_,__,___) => const TutorialPageThree(),
                     transitionsBuilder: (_, animation, __, child) {
                       return FadeTransition(opacity: animation, child: child);
                     }
@@ -1862,7 +2165,7 @@ class TutorialPageTwo extends StatelessWidget {
             
             const Positioned.fill(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(45.0),
                 child: Center(
                   child: IgnorePointer( // Ensures the Text does not block touch events
                     child: Text(
@@ -1894,15 +2197,16 @@ class TutorialPageThree extends StatelessWidget {
     final screenHeight = MediaQuery.sizeOf(context).height;
     final screenWidth = MediaQuery.sizeOf(context).width;
     return Scaffold(
+      backgroundColor: const Color(0xFF9CC4A9),
       body: Center(
         child: Stack(
           children: [
             Positioned(
-              top:0.6*screenHeight,
+              bottom:0.25*screenHeight,
               child: Center(
                 child: IgnorePointer(
                   child: Container(
-                    padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.all(45),
                     width: MediaQuery.sizeOf(context).width,
                     child: const Text(
                       "Press here any time to return home",
@@ -1917,7 +2221,7 @@ class TutorialPageThree extends StatelessWidget {
               ),
             ),
             Positioned(
-              top: 0.735*screenHeight,
+              bottom: 0.18*screenHeight,
               left: 0.3*screenWidth,
               child: Transform(
                 transform: Matrix4.rotationZ(0.25),
