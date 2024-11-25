@@ -10,7 +10,6 @@ import 'thoughts_on_trial.dart' as thoughts;
 import 'dart:async';
 import 'package:xml/xml.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
